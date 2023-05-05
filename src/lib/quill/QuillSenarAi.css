@@ -1,0 +1,8 @@
+quill-lt-match {
+  border-bottom: #ff6a6a solid 2px;
+}
+
+quill-lt-match:hover {
+  background-color: #fdcccc;
+  cursor: pointer;
+}

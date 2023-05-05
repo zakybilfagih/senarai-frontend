@@ -1,0 +1,13 @@
+.ql-toolbar.ql-snow {
+    display: none;
+
+}
+
+.ql-toolbar.ql-snow + .ql-container.ql-snow {
+    border-top: 1px solid #ccc;
+}
+
+.ql-container {
+    font-family: 'Inter', sans-serif;
+    @apply text-sm lg:text-base xl:text-lg
+}
