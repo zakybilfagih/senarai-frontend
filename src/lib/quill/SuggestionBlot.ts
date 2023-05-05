@@ -10,24 +10,31 @@ type MatchesEntity = {
 }
 
 export default function createSuggestionBlotForQuillInstance(Quill: any) {
-  const ParentBlot = Quill.import('formats/bold')
+  const ParentBlot = Quill.import('blots/inline')
 
   return class SuggestionBlot extends ParentBlot {
     static blotName = 'ltmatch'
     static tagName = ['quill-lt-match']
 
     static create(match?: MatchesEntity) {
-      let node: HTMLElement = super.create()
+      const node: HTMLElement = super.create()
       if (match) {
         node.setAttribute('data-offset', match.offset.toString())
         node.setAttribute('data-length', match.length.toString())
         node.setAttribute('data-rule-id', match.rule.id)
       }
+      node.addEventListener('click', (event) => {
+        console.log(match)
+      })
       return node
     }
 
-    optimize(context: any) {
-      super.optimize(context)
+    optimize() {
+      return
+    }
+
+    deleteAt() {
+      return false
     }
   }
 }
