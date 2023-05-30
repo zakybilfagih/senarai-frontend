@@ -11,3 +11,8 @@
     font-family: 'Inter', sans-serif;
     @apply text-sm lg:text-base xl:text-lg
 }
+
+.ql-editor {
+    @apply xl:p-24 lg:p-8;
+    flex-grow: 1;
+}

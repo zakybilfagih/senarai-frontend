@@ -1,16 +1,26 @@
-type Rule = {
-  id: string
-  description: string
-}
+import { suggestionType } from '../../Editor'
+import html from 'nanohtml/lib/browser'
 
 type MatchesEntity = {
   offset: number
   length: number
-  rule: Rule
+  replacement: string[]
+  selectedReplacement: number | null
+  active: boolean
+  type: (typeof suggestionType)[keyof typeof suggestionType]
 }
 
 export default function createSuggestionBlotForQuillInstance(Quill: any) {
   const ParentBlot = Quill.import('blots/inline')
+  const Delta = Quill.imports.delta
+
+  function findQuill(node): Quill {
+    while (node) {
+      const quill = Quill.find(node)
+      if (quill instanceof Quill) return quill
+      node = node.parentElement
+    }
+  }
 
   return class SuggestionBlot extends ParentBlot {
     static blotName = 'ltmatch'
@@ -18,23 +28,42 @@ export default function createSuggestionBlotForQuillInstance(Quill: any) {
 
     static create(match?: MatchesEntity) {
       const node: HTMLElement = super.create()
-      if (match) {
-        node.setAttribute('data-offset', match.offset.toString())
-        node.setAttribute('data-length', match.length.toString())
-        node.setAttribute('data-rule-id', match.rule.id)
+      if (match && match.offset != null) {
+        const { length, offset, active, type } = match
+        node.setAttribute('data-offset', offset.toString())
+        node.setAttribute('data-length', length.toString())
+        node.setAttribute('data-type', type.toString())
+        if (active) {
+          node.setAttribute('data-active', 'true')
+        }
+        node.addEventListener('click', (event) => {
+          if (active) return
+
+          document.dispatchEvent(
+            new CustomEvent('active-blot', {
+              detail: {
+                offset,
+                length,
+                type
+              }
+            })
+          )
+        })
       }
-      node.addEventListener('click', (event) => {
-        console.log(match)
-      })
       return node
     }
 
-    optimize() {
-      return
-    }
+    optimize(context) {
+      if (this.next instanceof SuggestionBlot) {
+        const thisType =
+          this.domNode?.attributes?.getNamedItem('data-type')?.value
+        const thatType =
+          this.next.domNode?.attributes?.getNamedItem('data-type')?.value
 
-    deleteAt() {
-      return false
+        if (thisType == thatType) {
+          super.optimize(context)
+        }
+      }
     }
   }
 }
